@@ -69,6 +69,25 @@ DELETE {{baseUrl}}/logs/{{logId}}
 Accept: application/json
 
 ### --- Users APIs ---
+### Register user
+POST {{baseUrl}}/users/register
+Content-Type: application/json
+
+{
+  "name": "Bob",
+  "email": "bob@example.com",
+  "password": "secret"
+}
+
+### Login user
+POST {{baseUrl}}/users/login
+Content-Type: application/json
+
+{
+  "email": "bob@example.com",
+  "password": "secret"
+}
+
 ### Create user
 POST {{baseUrl}}/users
 Content-Type: application/json
