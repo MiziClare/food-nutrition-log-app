@@ -36,4 +36,7 @@ public interface FoodIngredientMapper {
 
     @Delete("DELETE FROM food_ingredient WHERE id = #{id}")
     int delete(@Param("id") Integer id);
+
+    @Delete("DELETE FROM food_ingredient WHERE log_id = #{logId}")
+    int deleteByLogId(@Param("logId") Integer logId);
 }

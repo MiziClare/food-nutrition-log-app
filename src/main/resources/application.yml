@@ -10,7 +10,7 @@ spring:
           model: gpt-4o-mini
           temperature: 0.7
   datasource:
-    url: jdbc:mysql://localhost:3309/food_log_app?useSSL=false&serverTimezone=UTC&characterEncoding=utf8
+    url: jdbc:mysql://localhost:3309/food_log_app?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true
     username: root
     password: Zxy@5628610
     driver-class-name: com.mysql.cj.jdbc.Driver
