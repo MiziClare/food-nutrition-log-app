@@ -1,0 +1,42 @@
+@baseUrl = http://localhost:8080
+
+### Upload salad image -> analyze and log ingredients
+POST {{baseUrl}}/ai/agent/upload
+Accept: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="dish1.jpg"
+Content-Type: image/jpeg
+
+< E:\图片\dish1.png
+--WebAppBoundary
+Content-Disposition: form-data; name="userId"
+
+1
+--WebAppBoundary
+Content-Disposition: form-data; name="notes"
+
+Salad for lunch
+--WebAppBoundary--
+
+> {%
+try {
+  const body = JSON.parse(response.body);
+  client.assert(body.status === "SUCCESS", "status should be SUCCESS, got " + body.status);
+  if (body.logId) {
+    client.global.set("logId", String(body.logId));
+    client.log("logId=" + body.logId);
+  } else {
+    client.log("No logId returned. Body=" + response.body);
+  }
+} catch (e) {
+  client.log("Non-JSON response: " + response.body);
+  client.assert(false, "Response is not valid JSON: " + e.message);
+}
+%}
+
+
+### Test api
+GET http://localhost:8080/ai/chat?prompt=你好,请介绍一下自己&chatId=456
+Accept: text/html
