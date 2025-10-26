@@ -6,8 +6,8 @@ Accept: application/json
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 
 --WebAppBoundary
-Content-Disposition: form-data; name="file"; filename="dish1.jpg"
-Content-Type: image/jpeg
+Content-Disposition: form-data; name="file"; filename="dish1.png"
+Content-Type: image/png
 
 < E:\图片\dish1.png
 --WebAppBoundary
@@ -21,17 +21,24 @@ Salad for lunch
 --WebAppBoundary--
 
 > {%
+let body;
 try {
-  const body = JSON.parse(response.body);
-  client.assert(body.status === "SUCCESS", "status should be SUCCESS, got " + body.status);
-  if (body.logId) {
+  if (typeof response.body === 'string') {
+    body = JSON.parse(response.body);
+  } else {
+    // In some environments, response.body may already be a parsed object
+    body = response.body;
+  }
+  client.assert(body && body.status === "SUCCESS", "status should be SUCCESS, got " + (body && body.status));
+  if (body && body.logId) {
     client.global.set("logId", String(body.logId));
     client.log("logId=" + body.logId);
   } else {
-    client.log("No logId returned. Body=" + response.body);
+    client.log("No logId returned. Body=" + JSON.stringify(body));
   }
 } catch (e) {
-  client.log("Non-JSON response: " + response.body);
+  const textBody = typeof response.body === 'string' ? response.body : JSON.stringify(response.body);
+  client.log("Non-JSON or unparsable response: " + textBody);
   client.assert(false, "Response is not valid JSON: " + e.message);
 }
 %}
