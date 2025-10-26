@@ -1,4 +1,3 @@
-```markdown
 # 接口文档
 
 Base URL: `http://localhost:8080`  
@@ -159,4 +158,3 @@ FoodIngredient:
 - 数据库中 `food_ingredient.log_id` 有外键关联 `food_log.id`；代码层已做先删食材再删日志的事务性处理，确保不会违反外键约束。
 
 ---
-```
