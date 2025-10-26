@@ -21,6 +21,11 @@
 | 17 | 5 | fresh herbs | 30 | 5.00 |
 | 18 | 5 | rice | 130 | 100.00 |
 
+### 快速看懂代码接口：
+在根目录的/test目录下有一个 food.http 文件，里面有主接口的测试代码，可以运行这个测试再查看数据库来了解主接口的使用方法。
+
+
+## 运行前准备
 ### ⭐ 首先必须修改图片存放路径
 在.yaml文件内把
 
@@ -32,7 +37,7 @@ image-dir: ''
 比如 image-dir: 'E:\\Code\\Food Log App\\food-images'.
 注意路径中的反斜杠需要用双反斜杠表示，或者使用正斜杠。
 
-## 运行前准备
+### ⭐ 数据库创建
 创建三个数据库表，并在yml文件内配置自己的好数据库连接信息。
 
 ```text
@@ -69,6 +74,7 @@ CREATE TABLE food_ingredient (
 );
 ```
 
+
 ### 项目核心代码在：
 controller/AgentController.java
 tools/FoodTools.java
@@ -77,7 +83,3 @@ tools/FoodTools.java
 System prompt: 位于 constants/SystemConstants.java
 
 User prompt: 位于 AgentController.java
-
-### 看懂代码接口：
-在根目录的/test目录下有一个 food.http 文件，里面有主接口的测试代码，可以运行这个测试再查看数据库来了解主接口的使用方法。
-
