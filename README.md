@@ -1,7 +1,7 @@
 ## 此项目有课程需要的唯一的傻瓜接口:
 `/ai/agent/upload`
 
-输入图片，返回识别结果。
+输入图片，得到识别结果和可信分数，自动存入数据库（图片以链接方式存储）。
 
 比如，上传某张食物图片（假设是第五次日志操作）
 
@@ -23,6 +23,75 @@
 ### 🧱 快速看懂接口：
 在根目录的/test目录下有一个 food.http 文件，里面有主接口的测试代码，可以运行这个测试再查看数据库来了解主接口的使用方法。
 
+### 接口文档
+
+
+#### `POST /ai/agent/upload` 分析食物图片并记录
+
+此接口用于上传一张食物图片。服务器将保存图片，创建一条食物日志（food log）记录，然后触发一个多模态AI Agent来分析图片中的食材。Agent会（通过工具）将识别出的每种食材及其估算的卡路里（kcal）和重量（g）存入数据库，并更新该日志的AI分析置信度。
+
+**请求 (Request)**
+
+* **Content-Type:** `multipart/form-data`
+
+* **Form-Data 参数:**
+
+| 参数 | 类型 | 必需 | 描述 |
+| :--- | :--- | :--- | :--- |
+| `file` | File | **是** | 要分析的食物图片文件 (例如: `my_lunch.jpg`)。 |
+| `userId` | Integer | 否 | 提交日志的用户ID。 (默认值: `1`) |
+| `notes` | String | 否 | 用户附加的额外备注 (例如: "这是我的早餐")。 |
+
+**成功响应 (Success Response)**
+
+* **Code:** `200 OK`
+* **Content-Type:** `application/json;charset=UTF-8`
+* **Body:**
+    返回一个JSON对象，确认日志已创建，并包含AI分析的结果统计（**注意：** 此JSON来自数据库的最终确认，而非AI的直接回复）。
+
+* **示例 (Example):**
+
+    ```json
+    {
+      "status": "SUCCESS",
+      "logId": 105,
+      "count": 4,
+      "confidence": 85
+    }
+    ```
+
+* **字段说明:**
+    * `status`: "SUCCESS" 表示操作成功。
+    * `logId`: 本次上传在 `food_log` 表中生成的唯一ID。
+    * `count`: AI成功识别并存入 `food_ingredient` 表的食材总数。
+    * `confidence`: AI对本次分析的置信度评分 (0-100)，已更新到 `food_log` 表。
+
+**失败响应 (Error Response)**
+
+* **Code:** `400 Bad Request` 或 `500 Internal Server Error`
+* **Content-Type:** `application/json;charset=UTF-8`
+* **Body:**
+    返回一个JSON对象，说明失败原因。
+
+* **示例 (Example - 未上传文件):**
+
+    ```json
+    {
+      "status": "FAILED",
+      "message": "File is empty."
+    }
+    ```
+
+* **示例 (Example - AI或服务器内部错误):**
+    ```json
+    {
+      "status": "FAILED",
+      "message": "An error occurred during AI analysis: [error details]"
+    }
+    ```
+
+
+---
 
 ## 运行前准备
 ### ⭐ 首先必须修改图片存放路径
