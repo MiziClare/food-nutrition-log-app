@@ -18,6 +18,7 @@ import java.util.UUID;
 import org.springframework.util.MimeType;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import com.example.foodlogapp.config.StorageProperties;
 
 @RequiredArgsConstructor
 @RestController
@@ -34,8 +35,8 @@ public class AgentController {
     // 新增：用于确保 user 存在（仅开发/测试用途）
     private final JdbcTemplate jdbcTemplate;
 
-    // 2. 从配置文件或常量中定义图片存储路径
-    private final Path imageStoragePath = Paths.get("E:\\Code\\Food Log App\\food-images\\");
+    // 从配置读取图片目录
+    private final StorageProperties storageProperties;
 
     /**
      * 接收食物图片，保存图片，创建日志条目，然后调用AI Agent进行分析和入库
@@ -61,6 +62,7 @@ public class AgentController {
             ensureUserExists(userId);
 
             // --- 步骤 1 & 2: 存储图片文件 ---
+            Path imageStoragePath = Paths.get(storageProperties.getImageDir());
             // 创建唯一文件名
             String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "image.jpg";
             String fileExtension = "";

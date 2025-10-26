@@ -1,5 +1,7 @@
 @baseUrl = http://localhost:8080
 
+### 测试方法：修改第11行的 filename 和第14行的 "<" 右侧内容改到一个本地存储图片的 文件名 / 路径；点击左侧测试按钮运行此脚本
+
 ### Upload salad image -> analyze and log ingredients
 POST {{baseUrl}}/ai/agent/upload
 Accept: application/json
