@@ -46,6 +46,57 @@ try {
 %}
 
 
-### Test api
+### Test openai api key
 GET http://localhost:8080/ai/chat?prompt=你好,请介绍一下自己&chatId=456
 Accept: text/html
+
+### --- Logs APIs ---
+@logId = 6
+### Get a single log by ID (includes ingredients)
+GET {{baseUrl}}/logs/{{logId}}
+Accept: application/json
+
+### Get all logs for a user (path variable)
+GET {{baseUrl}}/logs/user/1
+Accept: application/json
+
+### Get all logs for a user (query parameter)
+GET {{baseUrl}}/logs?userId=1
+Accept: application/json
+
+### Delete a single log by ID (also deletes its ingredients first)
+DELETE {{baseUrl}}/logs/{{logId}}
+Accept: application/json
+
+### --- Users APIs ---
+### Create user
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "name": "Alice",
+  "email": "alice@example.com",
+  "password": "secret"
+}
+
+### Get user by email
+GET {{baseUrl}}/users?email=alice@example.com
+Accept: application/json
+
+### Get user by ID
+GET {{baseUrl}}/users/1
+Accept: application/json
+
+### Update user
+PUT {{baseUrl}}/users/1
+Content-Type: application/json
+
+{
+  "name": "Alice Updated",
+  "email": "alice@example.com",
+  "password": "secret"
+}
+
+### Delete user
+DELETE {{baseUrl}}/users/1
+Accept: application/json

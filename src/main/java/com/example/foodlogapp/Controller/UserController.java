@@ -1,0 +1,68 @@
+package com.example.foodlogapp.Controller;
+
+import com.example.foodlogapp.entity.User;
+import com.example.foodlogapp.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.util.List;
+
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/users")
+public class UserController {
+
+    private final UserService userService;
+
+    // Get user by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getById(@PathVariable Integer id) {
+        User user = userService.findById(id);
+        if (user == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(user);
+    }
+
+    // Get user by email or all users
+    @GetMapping
+    public ResponseEntity<?> get(@RequestParam(value = "email", required = false) String email) {
+        if (email != null && !email.isBlank()) {
+            User user = userService.findByEmail(email);
+            if (user == null) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(user);
+        }
+        List<User> users = userService.findAll();
+        return ResponseEntity.ok(users);
+    }
+
+    // Create user
+    @PostMapping
+    public ResponseEntity<User> create(@RequestBody User user) {
+        int rows = userService.create(user);
+        if (rows <= 0 || user.getId() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.created(URI.create("/users/" + user.getId())).body(user);
+    }
+
+    // Update user
+    @PutMapping("/{id}")
+    public ResponseEntity<User> update(@PathVariable Integer id, @RequestBody User user) {
+        User existing = userService.findById(id);
+        if (existing == null) return ResponseEntity.notFound().build();
+        user.setId(id);
+        int rows = userService.update(user);
+        if (rows <= 0) return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(userService.findById(id));
+    }
+
+    // Delete user
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        User existing = userService.findById(id);
+        if (existing == null) return ResponseEntity.notFound().build();
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}

@@ -43,4 +43,9 @@ public class FoodIngredientServiceImpl implements FoodIngredientService {
     public int delete(Integer id) {
         return foodIngredientMapper.delete(id);
     }
+
+    @Override
+    public int deleteByLogId(Integer logId) {
+        return foodIngredientMapper.deleteByLogId(logId);
+    }
 }

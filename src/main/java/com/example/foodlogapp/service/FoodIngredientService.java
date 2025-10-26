@@ -9,4 +9,5 @@ public interface FoodIngredientService {
     int create(FoodIngredient foodIngredient);
     int update(FoodIngredient foodIngredient);
     int delete(Integer id);
+    int deleteByLogId(Integer logId);
 }
