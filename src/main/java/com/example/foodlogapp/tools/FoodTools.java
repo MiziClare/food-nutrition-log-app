@@ -2,10 +2,12 @@ package com.example.foodlogapp.tools;
 
 import com.example.foodlogapp.dto.IngredientLogEntry;
 import com.example.foodlogapp.entity.FoodIngredient;
+import com.example.foodlogapp.entity.FoodLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import com.example.foodlogapp.service.FoodIngredientService;
+import com.example.foodlogapp.service.FoodLogService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.List;
 public class FoodTools {
 
 private final FoodIngredientService foodIngredientService;
+private final FoodLogService foodLogService;
 
     /**
      * AI Tool definition for logging ingredients.
@@ -80,4 +83,41 @@ private final FoodIngredientService foodIngredientService;
             return "{\"status\": \"FAILED\", \"message\": \"" + errorMessage + "\"}";
         }
     }
+
+    /**
+     * AI Tool definition for setting the analysis confidence score (0-100) for a given food log.
+     */
+    @Tool(description = "Sets the analysis confidence score (0-100) for a specific food log entry. Always pass the exact logId provided by the user.")
+    public String setAnalysisConfidence(
+            @ToolParam(description = "The unique identifier (ID) of the food log entry to update.") Integer logId,
+            @ToolParam(description = "An integer confidence score from 0 to 100 representing how confident you are in your analysis.") Integer confidence
+    ) {
+        if (logId == null) {
+            return "{\"status\": \"FAILED\", \"message\": \"logId is required.\"}";
+        }
+        if (confidence == null) {
+            return "{\"status\": \"FAILED\", \"message\": \"confidence is required.\"}";
+        }
+        if (confidence < 0 || confidence > 100) {
+            return "{\"status\": \"FAILED\", \"message\": \"confidence must be between 0 and 100.\"}";
+        }
+
+        try {
+            FoodLog log = foodLogService.findById(logId);
+            if (log == null) {
+                return "{\"status\": \"FAILED\", \"message\": \"FoodLog not found for id: " + logId + "\"}";
+            }
+            log.setConfidence(confidence);
+            int rows = foodLogService.update(log);
+            if (rows <= 0) {
+                return "{\"status\": \"FAILED\", \"message\": \"Update failed for logId: " + logId + "\"}";
+            }
+            return "{\"status\": \"SUCCESS\", \"logId\": " + logId + ", \"confidence\": " + confidence + "}";
+        } catch (Exception e) {
+            String errorMessage = "Failed to set confidence for logId " + logId + ": " + e.getMessage();
+            System.err.println(errorMessage);
+            return "{\"status\": \"FAILED\", \"message\": \"" + errorMessage + "\"}";
+        }
+    }
+
 }

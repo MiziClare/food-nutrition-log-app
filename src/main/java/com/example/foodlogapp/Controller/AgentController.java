@@ -2,6 +2,7 @@ package com.example.foodlogapp.Controller;
 
 import com.example.foodlogapp.entity.FoodLog;
 import com.example.foodlogapp.service.FoodLogService;
+import com.example.foodlogapp.service.FoodIngredientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.io.Resource;
@@ -26,8 +27,9 @@ public class AgentController {
     // 注入的是配置了FoodTools的serviceChatClient
     private final ChatClient serviceChatClient;
 
-    // 1. 注入FoodLogService
+    // 1. 注入服务
     private final FoodLogService foodLogService;
+    private final FoodIngredientService foodIngredientService;
 
     // 新增：用于确保 user 存在（仅开发/测试用途）
     private final JdbcTemplate jdbcTemplate;
@@ -100,7 +102,8 @@ public class AgentController {
             String basePrompt = String.format(
                     "Analyze the attached food image. Detect every single ingredient, its estimated calories (kcal), " +
                             "and its estimated weight in grams. Use the 'logFoodIngredients' tool to save this data. " +
-                            "You MUST use the provided logId: %d.",
+                            "You MUST use the provided logId: %d." +
+                            "Then generate a confidence score (0-100) for your analysis using the tool.",
                     logId
             );
             String finalPrompt = (userNotes != null && !userNotes.isBlank())
@@ -113,9 +116,8 @@ public class AgentController {
             }
             MimeType mime = MimeType.valueOf(contentType);
 
-            // --- 步骤 5: 执行调用并获取最终结果 ---
-            // 使用 .call().content() 来等待工具执行完毕，并获取其返回的JSON字符串
-            String aiResponseJson = serviceChatClient.prompt()
+            // --- 步骤 5: 执行调用（忽略自然语言内容，统一返回标准JSON） ---
+            String ignored = serviceChatClient.prompt()
                     .user(u -> u
                             .text(finalPrompt)       // 包含logId的文本指令
                             .media(mime, imageResource)   // 图像
@@ -123,8 +125,15 @@ public class AgentController {
                     .call() // .call() 会触发AI思考 -> 调用工具 -> AI再思考 -> 返回最终结果
                     .content(); // 获取AI的最终响应（在这里，它应该是工具的输出）
 
-            // 成功：返回AI工具执行的结果
-            return ResponseEntity.ok(aiResponseJson);
+            // 读取数据库的实际结果，构建稳定JSON返回
+            int count = foodIngredientService.findByLogId(logId).size();
+            Integer confidence = null;
+            FoodLog saved = foodLogService.findById(logId);
+            if (saved != null) {
+                confidence = saved.getConfidence();
+            }
+            String resp = "{\"status\": \"SUCCESS\", \"logId\": " + logId + ", \"count\": " + count + (confidence != null ? ", \"confidence\": " + confidence : "") + "}";
+            return ResponseEntity.ok(resp);
 
         } catch (IOException e) {
             String errorMsg = "{\"status\": \"FAILED\", \"message\": \"Failed to save image file: " + e.getMessage() + "\"}";
@@ -155,3 +164,4 @@ public class AgentController {
                 userId, name, email, password);
     }
 }
+
