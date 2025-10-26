@@ -2,6 +2,7 @@ package com.example.foodlogapp.Controller;
 
 import com.example.foodlogapp.entity.User;
 import com.example.foodlogapp.service.UserService;
+import com.example.foodlogapp.dto.AuthRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -64,5 +65,42 @@ public class UserController {
         if (existing == null) return ResponseEntity.notFound().build();
         userService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Register: simple registration using User payload (name/email/password)
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody User user) {
+        if (user.getEmail() == null || user.getEmail().isBlank() || user.getPassword() == null || user.getPassword().isBlank()) {
+            return ResponseEntity.badRequest().body("email and password are required");
+        }
+        User exists = userService.findByEmail(user.getEmail());
+        if (exists != null) {
+            return ResponseEntity.badRequest().body("email already exists");
+        }
+        int rows = userService.create(user);
+        if (rows <= 0 || user.getId() == null) {
+            return ResponseEntity.badRequest().body("failed to register");
+        }
+        // Hide password in response
+        user.setPassword(null);
+        return ResponseEntity.created(URI.create("/users/" + user.getId())).body(user);
+    }
+
+    // Login: verify email/password and return basic user info
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody AuthRequest req) {
+        if (req.getEmail() == null || req.getEmail().isBlank() || req.getPassword() == null) {
+            return ResponseEntity.badRequest().body("email and password are required");
+        }
+        User user = userService.findByEmail(req.getEmail());
+        if (user == null) {
+            return ResponseEntity.status(404).body("user not found");
+        }
+        if (!req.getPassword().equals(user.getPassword())) {
+            return ResponseEntity.status(401).body("invalid credentials");
+        }
+        // Hide password before returning
+        user.setPassword(null);
+        return ResponseEntity.ok(user);
     }
 }

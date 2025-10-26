@@ -30,7 +30,7 @@ CORS: 允许任意来源
   "status": "SUCCESS",
   "logId": 123,
   "count": 3,
-  "confidence": 0.92
+  "confidence": 92
 }
 ```
 说明：
@@ -117,7 +117,7 @@ FoodIngredient:
 - 当未传 `email` 时返回全部 `User[]`
 - 成功响应 `200`
 
-#### 4) 新建用户
+#### 4) 新建用户（管理用途）
 - URL: `POST /users`
 - Content-Type: `application/json`
 - 请求体示例:
@@ -151,10 +151,79 @@ FoodIngredient:
 - 成功响应 `204 No Content`
 - 错误响应 `404`：用户不存在
 
+#### 7) 注册用户（公开）
+- URL: `POST /users/register`
+- Content-Type: `application/json`
+- 请求体示例:
+```json
+{
+  "name": "李四",
+  "email": "lisi@example.com",
+  "password": "secret"
+}
+```
+- 成功响应 `201 Created`：返回新注册用户（返回体不包含 `password`），并带 `Location: /users/{id}`
+- 错误响应：
+  - `400`：`email`/`password` 缺失，或 `email` 已存在，或注册失败
+
+#### 8) 登录（公开）
+- URL: `POST /users/login`
+- Content-Type: `application/json`
+- 请求体示例:
+```json
+{
+  "email": "lisi@example.com",
+  "password": "secret"
+}
+```
+- 成功响应 `200`：返回用户信息（返回体不包含 `password`）
+- 错误响应：
+  - `400`：`email`/`password` 缺失
+  - `404`：用户不存在
+  - `401`：凭证错误
+
+> 说明：当前为演示用“简单登录”，未发放 Token/Session、未做密码加密；如需生产安全方案，建议：
+> - 使用 BCrypt 对密码加密存储与校验
+> - 登录签发 JWT/Session 并由前端存储
+> - 在 `User.password` 上使用 `@JsonIgnore` 全局隐藏密码字段
+
 ---
 
 ## 补充说明
 - 日志删除返回 `204` 且响应体为空，是 REST 推荐行为，属于正常结果。
 - 数据库中 `food_ingredient.log_id` 有外键关联 `food_log.id`；代码层已做先删食材再删日志的事务性处理，确保不会违反外键约束。
+- 数据库建库代码
+```
+CREATE DATABASE IF NOT EXISTS food_log_app
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
+USE food_log_app;
+-- 1️⃣ 用户表
+CREATE TABLE user (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
+);
+
+-- 2️⃣ 食物日志表：记录用户上传的每张图片
+CREATE TABLE food_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    image_path VARCHAR(255) NOT NULL,
+    confidence INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(id)
+);
+
+-- 3️⃣ 食材识别结果表：每种食材一条记录
+CREATE TABLE food_ingredient (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    log_id INT NOT NULL,
+    ingredient_name VARCHAR(100) NOT NULL,
+    kcal INT,
+    weight DECIMAL(6,2),
+    FOREIGN KEY (log_id) REFERENCES food_log(id)
+);  
+```
 ---

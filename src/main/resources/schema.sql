@@ -3,7 +3,7 @@ CREATE DATABASE IF NOT EXISTS food_log_app
     COLLATE utf8mb4_unicode_ci;
 
 USE food_log_app;
--- 用户表
+-- 1️⃣ 用户表
 CREATE TABLE user (
                       id INT AUTO_INCREMENT PRIMARY KEY,
                       name VARCHAR(100) NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE user (
                       password VARCHAR(255) NOT NULL
 );
 
--- 食物日志表：记录用户上传的每张图片
+-- 2️⃣ 食物日志表：记录用户上传的每张图片
 CREATE TABLE food_log (
                           id INT AUTO_INCREMENT PRIMARY KEY,
                           user_id INT NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE food_log (
                           FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
--- 食材识别结果表：每种食材一条记录
+-- 3️⃣ 食材识别结果表：每种食材一条记录
 CREATE TABLE food_ingredient (
                                  id INT AUTO_INCREMENT PRIMARY KEY,
                                  log_id INT NOT NULL,
