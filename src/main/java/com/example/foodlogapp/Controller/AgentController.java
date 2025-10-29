@@ -3,6 +3,7 @@ package com.example.foodlogapp.Controller;
 import com.example.foodlogapp.entity.FoodLog;
 import com.example.foodlogapp.service.FoodLogService;
 import com.example.foodlogapp.service.FoodIngredientService;
+import com.example.foodlogapp.utils.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.io.Resource;
@@ -38,6 +39,8 @@ public class AgentController {
     // 从配置读取图片目录
     private final StorageProperties storageProperties;
 
+    private final S3Service s3Service;
+
     /**
      * 接收食物图片，保存图片，创建日志条目，然后调用AI Agent进行分析和入库
      *
@@ -62,28 +65,13 @@ public class AgentController {
             ensureUserExists(userId);
 
             // --- 步骤 1 & 2: 存储图片文件 ---
-            Path imageStoragePath = Paths.get(storageProperties.getImageDir());
-            // 创建唯一文件名
-            String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "image.jpg";
-            String fileExtension = "";
-            int i = originalFilename.lastIndexOf('.');
-            if (i > 0) {
-                fileExtension = originalFilename.substring(i);
-            }
-            String uniqueFileName = UUID.randomUUID() + fileExtension;
+            String imageUrl = s3Service.uploadFile(file);
 
-            // 确保目录存在
-            Files.createDirectories(imageStoragePath);
-            Path targetLocation = imageStoragePath.resolve(uniqueFileName);
-
-            // 保存文件
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            String imagePath = targetLocation.toAbsolutePath().toString();
 
             // --- 步骤 3: 创建FoodLog条目并获取logId ---
             FoodLog newLog = new FoodLog();
             newLog.setUserId(userId);
-            newLog.setImagePath(imagePath);
+            newLog.setImagePath(imageUrl);
             newLog.setConfidence(0); // 初始信心度，或根据需要移除
 
             // 使用 create() 方法创建记录；MyBatis 会把生成的ID回填到实体上
@@ -137,10 +125,6 @@ public class AgentController {
             String resp = "{\"status\": \"SUCCESS\", \"logId\": " + logId + ", \"count\": " + count + (confidence != null ? ", \"confidence\": " + confidence : "") + "}";
             return ResponseEntity.ok(resp);
 
-        } catch (IOException e) {
-            String errorMsg = "{\"status\": \"FAILED\", \"message\": \"Failed to save image file: " + e.getMessage() + "\"}";
-            System.err.println(errorMsg);
-            return ResponseEntity.internalServerError().body(errorMsg);
         } catch (Exception e) {
             String errorMsg = "{\"status\": \"FAILED\", \"message\": \"An error occurred during AI analysis: " + e.getMessage() + "\"}";
             System.err.println(errorMsg);
