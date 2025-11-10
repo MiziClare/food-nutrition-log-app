@@ -12,7 +12,7 @@ This project allows users to log food images, analyze ingredients, and record nu
 ## Steps to download, compile, and run
 
 1. Clone the repository (replace with the project URL):
-    - git clone <REPO_URL>
+    - git clone https://github.com/MiziClare/food-nutrition-log-app.git
     - cd <repo-directory>
 
 2. Prepare the database
