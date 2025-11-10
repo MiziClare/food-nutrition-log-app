@@ -1,153 +1,78 @@
-## 此项目有课程需要的唯一的接口:
-`/ai/agent/upload`
+# Food Log App
 
-输入图片，得到识别结果和可信分数，自动存入数据库（图片以链接方式存储）。
+A full-stack web application built with **Spring Boot**, **MySQL**, and **React**.  
+This project allows users to log food images, analyze ingredients, and record nutritional data.
 
-比如，上传某张食物图片（假设是第五次日志操作）
-
-① FoodLog 表会新增一次日志；agent 还会为其生成这次分析的 confidence score。
-
-② FoodIngredient 表，agent 会为其新增如下数据：
-
-| id | log_id | ingredient_name | kcal | weight |
-|---:|-------:|:----------------|-----:|-------:|
-| 11 | 5 | chicken | 165 | 150.00 |
-| 12 | 5 | soy sauce | 53 | 15.00 |
-| 13 | 5 | garlic | 149 | 5.00 |
-| 14 | 5 | ginger | 80 | 5.00 |
-| 15 | 5 | green chili | 40 | 5.00 |
-| 16 | 5 | vegetable oil | 884 | 10.00 |
-| 17 | 5 | fresh herbs | 30 | 5.00 |
-| 18 | 5 | rice | 130 | 100.00 |
-
-### 🧱 快速看懂接口：
-在根目录的/test目录下有一个 food.http 文件，里面有主接口的测试代码，可以运行这个测试再查看数据库来了解主接口的使用方法。
-
-### 接口文档
-
-
-#### `POST /ai/agent/upload` 分析食物图片并记录
-
-此接口用于上传一张食物图片。服务器将保存图片，创建一条食物日志（food log）记录，然后触发一个多模态AI Agent来分析图片中的食材。Agent会（通过工具）将识别出的每种食材及其估算的卡路里（kcal）和重量（g）存入数据库，并更新该日志的AI分析置信度。
-
-**请求 (Request)**
-
-* **Content-Type:** `multipart/form-data`
-
-* **Form-Data 参数:**
-
-| 参数 | 类型 | 必需 | 描述 |
-| :--- | :--- | :--- | :--- |
-| `file` | File | **是** | 要分析的食物图片文件 (例如: `my_lunch.jpg`)。 |
-| `userId` | Integer | 否 | 提交日志的用户ID。 (默认值: `1`) |
-| `notes` | String | 否 | 用户附加的额外备注 (例如: "这是我的早餐")。 |
-
-**成功响应 (Success Response)**
-
-* **Code:** `200 OK`
-* **Content-Type:** `application/json;charset=UTF-8`
-* **Body:**
-    返回一个JSON对象，确认日志已创建，并包含AI分析的结果统计（**注意：** 此JSON来自数据库的最终确认，而非AI的直接回复）。
-
-* **示例 (Example):**
-
-    ```json
-    {
-      "status": "SUCCESS",
-      "logId": 105,
-      "count": 4,
-      "confidence": 85
-    }
-    ```
-
-* **字段说明:**
-    * `status`: "SUCCESS" 表示操作成功。
-    * `logId`: 本次上传在 `food_log` 表中生成的唯一ID。
-    * `count`: AI成功识别并存入 `food_ingredient` 表的食材总数。
-    * `confidence`: AI对本次分析的置信度评分 (0-100)，已更新到 `food_log` 表。
-
-**失败响应 (Error Response)**
-
-* **Code:** `400 Bad Request` 或 `500 Internal Server Error`
-* **Content-Type:** `application/json;charset=UTF-8`
-* **Body:**
-    返回一个JSON对象，说明失败原因。
-
-* **示例 (Example - 未上传文件):**
-
-    ```json
-    {
-      "status": "FAILED",
-      "message": "File is empty."
-    }
-    ```
-
-* **示例 (Example - AI或服务器内部错误):**
-    ```json
-    {
-      "status": "FAILED",
-      "message": "An error occurred during AI analysis: [error details]"
-    }
-    ```
-
-
+- Java 17
+- Maven
+- NPM
+- MySQL server
 ---
 
-## 运行前准备
-### ⭐ 首先必须修改图片存放路径
-在.yaml文件内把
+## Steps to download, compile, and run
 
-app:
-storage:
-image-dir: ''
-引号内改为自己电脑上想存放图片的路径即可，
+1. Clone the repository (replace with the project URL):
+    - git clone https://github.com/MiziClare/food-nutrition-log-app.git
+    - cd <repo-directory>
 
-比如 image-dir: 'E:\\Code\\Food Log App\\food-images'.
-注意路径中的反斜杠需要用双反斜杠表示，或者使用正斜杠。
+2. Prepare the database
+    - Start MySQL server
+    - Run the SQL from the "Database" section above to create the database and tables
+    - Edit the backend `application.yml` to set DB username/password and (if needed) the JDBC URL
 
-### ⭐ 数据库创建
-创建三个数据库表，并在yml文件内配置自己的好数据库连接信息。
+3. Run the backend
+   Using Maven:
+    - mvn clean package
+    - mvn spring-boot:run
+   
+    - The backend default port is `8080`
 
-```text
-CREATE DATABASE IF NOT EXISTS food_log_app
-  DEFAULT CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
+4. Run the frontend
+    - cd portal
+    - npm install
+    - npm start
 
+## Database
+
+Create the database and tables before running the app. Example SQL (run in your MySQL client):
+
+```sql
+CREATE DATABASE IF NOT EXISTS food_log_app DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE food_log_app;
--- 1️⃣ 用户表
+
+-- User table
 CREATE TABLE user (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL
 );
 
--- 2️⃣ 食物日志表：记录用户上传的每张图片
+-- Food log table: each uploaded image creates a record
 CREATE TABLE food_log (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    image_path VARCHAR(255) NOT NULL,
-    confidence INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(id)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  image_path VARCHAR(255) NOT NULL,
+  confidence INT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
--- 3️⃣ 食材识别结果表：每种食材一条记录
+-- Food ingredient table: each ingredient detected in an image creates a record
 CREATE TABLE food_ingredient (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    log_id INT NOT NULL,
-    ingredient_name VARCHAR(100) NOT NULL,
-    kcal INT,
-    weight DECIMAL(6,2),
-    FOREIGN KEY (log_id) REFERENCES food_log(id)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  log_id INT NOT NULL,
+  ingredient_name VARCHAR(100) NOT NULL,
+  kcal INT,
+  weight DECIMAL(6,2),
+  FOREIGN KEY (log_id) REFERENCES food_log(id)
 );
+```
+Open the backend YML configuration file and set the MySQL connection properties:
+```text
+  datasource:
+    url: jdbc:mysql://localhost:[PORT]/[TABLE_NAME]?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true
+    username: 
+    password: 
 ```
 
 
-### 项目核心代码在：
-controller/AgentController.java
-tools/FoodTools.java
-
-### Prompt 目前效果良好，若要修改请查看：
-System prompt: 位于 constants/SystemConstants.java
-
-User prompt: 位于 controller/AgentController.java
