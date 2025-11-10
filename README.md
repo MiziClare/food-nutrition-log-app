@@ -24,7 +24,8 @@ This project allows users to log food images, analyze ingredients, and record nu
    Using Maven:
     - mvn clean package
     - mvn spring-boot:run
-   The backend default port is `8080`
+   
+    - The backend default port is `8080`
 
 4. Run the frontend
     - cd portal
