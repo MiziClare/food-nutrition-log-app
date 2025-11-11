@@ -28,6 +28,8 @@ Tools:
 
 ## Steps to download, compile, and run
 
+Two branches: main (local) & cloud (AWS).
+
 1. Clone the repository (replace with the project URL):
    - git clone https://github.com/MiziClare/food-nutrition-log-app.git
    - cd <repo-directory>
