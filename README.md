@@ -101,7 +101,7 @@ CREATE TABLE food_ingredient (
 );
 ```
 
-Open the backend YML configuration file and set the MySQL connection properties:
+Open the backend YML configuration file (src/main/resources/application.yml) and set the MySQL connection properties:
 
 ```text
 datasource:
