@@ -81,8 +81,6 @@ public class UserController {
         if (rows <= 0 || user.getId() == null) {
             return ResponseEntity.badRequest().body("failed to register");
         }
-        // Hide password in response
-        user.setPassword(null);
         return ResponseEntity.created(URI.create("/users/" + user.getId())).body(user);
     }
 
@@ -99,8 +97,6 @@ public class UserController {
         if (!req.getPassword().equals(user.getPassword())) {
             return ResponseEntity.status(401).body("invalid credentials");
         }
-        // Hide password before returning
-        user.setPassword(null);
         return ResponseEntity.ok(user);
     }
 }
