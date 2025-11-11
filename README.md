@@ -49,7 +49,8 @@ Tools:
    - npm start
    - The backend default port is `3000`
 
-5. Run the YOLOv11 service solely
+The trained modal can be viewed in the YOLOv11 directory in the root path. 
+How to run the service:
    - cd yolov11
    - pip install -r requirements.txt
    - python app.py
@@ -60,6 +61,8 @@ Tools:
      3. Click "Try it out"
      4. Upload an image and fill in the parameters
      5. Click "Execute"
+
+---
 
 ## Database
 
