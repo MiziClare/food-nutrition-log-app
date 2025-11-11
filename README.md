@@ -1,20 +1,19 @@
 # Food Log App
 
 A full-stack web application built with **Spring Boot**, **MySQL**, **FastAPI**, and **React**.  
-This project allows users to log food images, analyze ingredients, and record nutritional data.
+This project allows users to log food images, and record nutritional data.
 
 Programming Languages:
 
 - Java 17
-
 - Python 3.12
 - TypeScript
 
 Framework:
 
 - Spring Boot
-- React
 - FastAPI
+- React
 
 Tools:
 
@@ -42,7 +41,6 @@ Tools:
    Using Maven:
     - mvn clean package
     - mvn spring-boot:run
-
     - The backend default port is `8080`
 
 4. Run the frontend
@@ -51,7 +49,7 @@ Tools:
    - npm start
    - The backend default port is `3000`
 
-5. Run the YOLOv11 service
+5. Run the YOLOv11 service solely
    - cd yolov11
    - pip install -r requirements.txt
    - python app.py
