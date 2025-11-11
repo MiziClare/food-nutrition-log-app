@@ -1,0 +1,23 @@
+### Food Recognition API - Upload and Analyze
+
+### Upload food image for analysis
+POST http://localhost:8000/ai/agent/upload
+Accept: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="food1.png"
+Content-Type: image/png
+
+< C:\Users\Administrator\Desktop\food1.png
+--WebAppBoundary
+Content-Disposition: form-data; name="userId"
+
+1
+--WebAppBoundary
+Content-Disposition: form-data; name="notes"
+
+Salad for lunch
+--WebAppBoundary--
+
+###
