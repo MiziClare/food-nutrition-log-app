@@ -33,7 +33,7 @@ Tools:
    - git clone https://github.com/MiziClare/food-nutrition-log-app.git
    - cd <repo-directory>
 
-2. Prepare the database
+2. Prepare the database and AWS S3
    - Start MySQL server
    - Run the SQL from the "Database" section above to create the database and tables
    - Edit the backend `application.yml` to set DB username/password and (if needed) the JDBC URL
@@ -102,8 +102,17 @@ CREATE TABLE food_ingredient (
 Open the backend YML configuration file and set the MySQL connection properties:
 
 ```text
-  datasource:
-    url: jdbc:mysql://localhost:[PORT]/[TABLE_NAME]?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true
-    username: 
-    password: 
+datasource:
+  url: jdbc:mysql://localhost:[PORT]/[TABLE_NAME]?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true
+  username: ...
+  password: ...
+
+aws:
+  accessKey: ...
+  secretKey: ...
+  baseUrl: ...
+  s3:
+    bucketName: ...
+    localRecord:
+      region: ...
 ```
