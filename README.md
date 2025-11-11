@@ -47,7 +47,6 @@ Tools:
    - cd portal
    - npm install
    - npm start
-   - The backend default port is `3000`
 
 The trained modal can be viewed in the YOLOv11 directory in the root path. 
 How to run the service:
