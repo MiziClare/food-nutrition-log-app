@@ -31,7 +31,7 @@ Tools:
 Two branches: main (local) & cloud (AWS).
 
 1. Clone the repository (replace with the project URL):
-   - git clone https://github.com/MiziClare/food-nutrition-log-app.git
+   - git clone [repo/branch]
    - cd <repo-directory>
 
 2. Prepare the database and AWS S3
