@@ -1,4 +1,4 @@
-# AI Food Log App
+# 🍩 AI Food Log App
 
 A full-stack web application built with **Spring Boot**, **React**, **MySQL**, **Spring AI (OpenAI)**, and **AWS S3**.
 
