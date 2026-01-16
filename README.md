@@ -145,6 +145,11 @@ aws:
 
   s3:
     region: your-aws-region # e.g., us-east-2
+    bucket: your-bucket-name
     bucketName: your-s3-bucket-name
+    access-key: YOUR_AWS_ACCESS_KEY
+    secret-key: YOUR_AWS_SECRET_KEY
+    localRecord:
+      region: your-aws-region # e.g., us-east-2
     # ...
 ````
