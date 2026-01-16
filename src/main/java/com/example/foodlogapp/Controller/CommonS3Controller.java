@@ -1,18 +1,15 @@
 package com.example.foodlogapp.Controller;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.example.foodlogapp.config.AwsConfiguration;
-import jakarta.annotation.Resource;
+
+import com.example.foodlogapp.utils.S3Service;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author Evan
@@ -22,13 +19,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/s3")
 @Slf4j
+@RequiredArgsConstructor
 public class CommonS3Controller {
 
-    @Resource
-    private AmazonS3 s3Client;
-
-    @Resource
-    private AwsConfiguration awsConfiguration;
+    private final S3Service s3Service;
 
     /**
      * 上传单个文件到 S3
@@ -36,24 +30,8 @@ public class CommonS3Controller {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
-            String fileKey = "uploads/" + UUID.randomUUID();
-
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(file.getSize());
-            metadata.setContentType(file.getContentType());
-
-            s3Client.putObject(new PutObjectRequest(
-                    awsConfiguration.getBucketName(),
-                    fileKey,
-                    file.getInputStream(),
-                    metadata
-            ));
-
-            String fileUrl = awsConfiguration.getBaseUrl() + "/" + fileKey;
-            log.info("File uploaded successfully: {}", fileUrl);
-
+            String fileUrl = s3Service.uploadFile(file);
             return ResponseEntity.ok(fileUrl);
-
         } catch (Exception e) {
             log.error("Error uploading file to S3", e);
             return ResponseEntity.internalServerError().body("Failed to upload file: " + e.getMessage());
@@ -65,33 +43,19 @@ public class CommonS3Controller {
      */
     @PostMapping("/uploads")
     public ResponseEntity<List<String>> uploadFiles(@RequestParam("files") List<MultipartFile> files) {
-        List<String> uploadedUrls = new ArrayList<>();
+        try {
+            List<String> uploadedUrls = files.stream()
+                    .map(s3Service::uploadFile)
+                    .collect(Collectors.toList());
 
-        for (MultipartFile file : files) {
-            try {
-                String fileKey = "uploads/" + UUID.randomUUID();
-
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentLength(file.getSize());
-                metadata.setContentType(file.getContentType());
-
-                s3Client.putObject(new PutObjectRequest(
-                        awsConfiguration.getBucketName(),
-                        fileKey,
-                        file.getInputStream(),
-                        metadata
-                ));
-
-                uploadedUrls.add(awsConfiguration.getBaseUrl() + "/" + fileKey);
-            } catch (Exception e) {
-                log.error("Error uploading file: {}", file.getOriginalFilename(), e);
+            if (uploadedUrls.isEmpty() && !files.isEmpty()) {
+                return ResponseEntity.internalServerError().build();
             }
-        }
 
-        if (uploadedUrls.isEmpty()) {
+            return ResponseEntity.ok(uploadedUrls);
+        } catch (Exception e) {
+            log.error("Error uploading multiple files", e);
             return ResponseEntity.internalServerError().build();
         }
-
-        return ResponseEntity.ok(uploadedUrls);
     }
 }

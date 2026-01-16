@@ -1,40 +1,61 @@
 # Food Log App
 
-A full-stack web application built with **Spring Boot**, **MySQL**, and **React**.  
-This project allows users to log food images, analyze ingredients, and record nutritional data.
+A full-stack web application built with **Spring Boot**, **React**, **MySQL**, **Spring AI (OpenAI)**, and **AWS S3**.
 
-- Java 17
-- Maven
-- NPM
-- MySQL server
+This project allows users to upload food images. The image is stored in AWS S3, analyzed by an AI to identify ingredients and estimate nutritional values, and then logged into a MySQL database.
+
+## Tech Stack
+
+-   **Backend**: Java 17, Spring Boot, Spring AI, AWS SDK
+-   **Frontend**: React, Vite
+-   **Database**: MySQL
+-   **AI Service**: OpenAI (e.g., GPT-4o-mini)
+-   **Cloud Storage**: AWS S3
+
+## Prerequisites
+
+-   Java 17
+-   Maven
+-   Node.js & npm
+-   MySQL Server
+-   AWS Account & S3 Bucket
+-   OpenAI API Key
+
 ---
 
-## Steps to download, compile, and run
+## How to Run
 
-1. Clone the repository (replace with the project URL):
-    - git clone https://github.com/MiziClare/food-nutrition-log-app.git
-    - cd <repo-directory>
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/MiziClare/food-nutrition-log-app.git
+    cd food-nutrition-log-app
+    ```
 
-2. Prepare the database
-    - Start MySQL server
-    - Run the SQL from the "Database" section above to create the database and tables
-    - Edit the backend `application.yml` to set DB username/password and (if needed) the JDBC URL
+2.  **Setup Database**:
+    -   Start your MySQL server.
+    -   Execute the SQL script from the "Database" section below.
 
-3. Run the backend
-   Using Maven:
-    - mvn clean package
-    - mvn spring-boot:run
-   
-    - The backend default port is `8080`
+3.  **Configure Backend**:
+    -   Open `src/main/resources/application.yml`.
+    -   Update the `spring.datasource`, `spring.ai.openai`, and `aws` sections with your credentials as shown in the "Configuration" section.
 
-4. Run the frontend
-    - cd portal
-    - npm install
-    - npm start
+4.  **Run Backend**:
+    ```bash
+    mvn spring-boot:run
+    ```
+    The backend runs on port `8080` by default.
+
+5.  **Run Frontend**:
+    ```bash
+    cd portal
+    npm install
+    npm run dev
+    ```
+    The frontend runs on port `3000` or `5173` by default.
 
 ## Database
 
-Create the database and tables before running the app. Example SQL (run in your MySQL client):
+Execute the following SQL in your MySQL client to create the necessary database and tables.
 
 ```sql
 CREATE DATABASE IF NOT EXISTS food_log_app DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -67,12 +88,35 @@ CREATE TABLE food_ingredient (
   FOREIGN KEY (log_id) REFERENCES food_log(id)
 );
 ```
-Open the backend YML configuration file and set the MySQL connection properties:
-```text
+
+## Configuration
+
+Update `src/main/resources/application.yml` with your settings.
+
+```yaml
+spring:
+  # ...
+  ai:
+    openai:
+      # Use environment variables for sensitive data
+      api-key: ${OPENAI_API_KEY}
+      # ...
   datasource:
     url: jdbc:mysql://localhost:[PORT]/[TABLE_NAME]?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true
-    username: 
-    password: 
+    username:
+    password:
 ```
 
+# ...
 
+aws:
+  # Public URL of your S3 bucket (e.g., https://<bucket-name>.s3.<region>.amazonaws.com)
+  baseUrl: https://your-bucket-name.s3.your-region.amazonaws.com
+  accessKey: YOUR_AWS_ACCESS_KEY
+  secretKey: YOUR_AWS_SECRET_KEY
+
+  s3:
+    region: your-aws-region # e.g., us-east-2
+    bucketName: your-s3-bucket-name
+    # ...
+```
