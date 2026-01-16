@@ -1,4 +1,4 @@
-# Food Log App
+# AI Food Log App
 
 A full-stack web application built with **Spring Boot**, **React**, **MySQL**, **Spring AI (OpenAI)**, and **AWS S3**.
 
@@ -11,6 +11,35 @@ This project allows users to upload food images. The image is stored in AWS S3, 
 -   **Database**: MySQL
 -   **AI Service**: OpenAI (e.g., GPT-4o-mini)
 -   **Cloud Storage**: AWS S3
+
+## App Screenshots
+
+<table>
+  <tr>
+    <td align="center"><b>User Home Page</b></td>
+    <td align="center"><b>App Preview</b></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/01user_home_page.png" alt="User Home Page" width="400"/></td>
+    <td><img src="screenshots/02app_preview.png" alt="App Preview" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Select Food Type</b></td>
+    <td align="center"><b>Scan Your Food</b></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/03select_food_type.png" alt="Select Food Type" width="400"/></td>
+    <td><img src="screenshots/04scan_your_food.png" alt="Scan Your Food" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Analysis Results</b></td>
+    <td align="center"><b>User Profile</b></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/05analysis_result.png" alt="Analysis Results" width="400"/></td>
+    <td><img src="screenshots/06user_profile.png" alt="User Profile" width="400"/></td>
+  </tr>
+</table>
 
 ## Prerequisites
 
@@ -105,7 +134,6 @@ spring:
     url: jdbc:mysql://localhost:[PORT]/[TABLE_NAME]?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true
     username:
     password:
-```
 
 # ...
 
@@ -119,4 +147,4 @@ aws:
     region: your-aws-region # e.g., us-east-2
     bucketName: your-s3-bucket-name
     # ...
-```
+````

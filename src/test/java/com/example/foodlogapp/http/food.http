@@ -93,9 +93,9 @@ POST {{baseUrl}}/users
 Content-Type: application/json
 
 {
-  "name": "Alice",
-  "email": "alice@example.com",
-  "password": "secret"
+  "name": "Xiaoyi",
+  "email": "xiaoyi@example.com",
+  "password": "123456"
 }
 
 ### Get user by email
